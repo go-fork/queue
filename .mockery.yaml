@@ -1,0 +1,32 @@
+with-expecter: true
+resolve-type-alias: false
+disable-version-string: true
+quiet: false
+dir: "mocks"
+outpkg: "mocks"
+packages:
+  "go.fork.vn/queue":
+    interfaces:
+      Manager:
+        config:
+          filename: "manager.go"
+          mockname: "MockManager"
+          structname: "MockManager"
+      Client:
+        config:
+          filename: "client.go"
+          outpkg: "mocks"
+          structname: "MockClient"
+      Server:
+        config:
+          filename: "server.go"
+          mockname: "MockServer"
+          structname: "MockServer"
+  "go.fork.vn/queue/adapter":
+    interfaces:
+      QueueAdapter:
+        config:
+          filename: "queue_adapter.go"
+          mockname: "MockQueueAdapter"
+          structname: "MockQueueAdapter"
+

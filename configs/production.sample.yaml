@@ -1,0 +1,171 @@
+# Queue Provider Production Configuration Sample
+# This file provides a production-ready template for configuring the queue provider
+# 
+# Version: v0.0.5
+# Features: Redis Provider integration, enhanced Redis features, production optimizations
+
+# Queue Configuration for Production
+queue:
+  # Adapter Configuration
+  adapter:
+    # Use Redis for production environments
+    default: "redis"
+
+    # Redis Adapter Configuration
+    redis:
+      # Production queue prefix
+      prefix: "myapp_queue:"
+      # Redis provider key to use
+      provider_key: "default"
+
+  # Server Configuration - Production Optimized
+  server:
+    # High concurrency for production workloads
+    concurrency: 50
+    
+    # Faster polling for high-throughput
+    pollingInterval: 500
+    
+    # Default queue name
+    defaultQueue: "default"
+    
+    # Enforce strict queue priority in production
+    strictPriority: true
+    
+    # Production queue hierarchy
+    queues:
+      - "critical"      # P0 - Critical system tasks
+      - "high"          # P1 - High priority user tasks  
+      - "default"       # P2 - Normal priority tasks
+      - "low"           # P3 - Background tasks
+      - "bulk"          # P4 - Bulk/batch operations
+    
+    # Extended timeout for graceful shutdown
+    shutdownTimeout: 60
+    
+    # Info level logging for production
+    logLevel: 1
+    
+    # Higher retry limit for production reliability
+    retryLimit: 5
+
+  # Client Configuration - Production Settings
+  client:
+    # Production default options
+    defaultOptions:
+      # Default queue for tasks
+      queue: "default"
+      
+      # Conservative retry limit
+      maxRetry: 3
+      
+      # Extended timeout for complex tasks
+      timeout: 15  # minutes
+
+# Redis Provider Configuration - Production Ready
+redis:
+  # Primary Redis instance for queue operations
+  default:
+    # Production Redis host
+    host: "${REDIS_HOST:-redis-cluster.internal}"
+    port: ${REDIS_PORT:-6379}
+    password: "${REDIS_PASSWORD}"
+    db: ${REDIS_DB:-0}
+    
+    # Production connection pool settings
+    pool_size: 100
+    min_idle_conns: 20
+    max_conn_age: 1800  # 30 minutes
+    
+    # Production timeout settings
+    dial_timeout: 10    # seconds
+    read_timeout: 5     # seconds
+    write_timeout: 5    # seconds
+    
+    # Production retry settings
+    max_retries: 5
+    min_retry_backoff: 100   # milliseconds
+    max_retry_backoff: 2000  # milliseconds
+    
+    # TLS configuration for secure connections
+    tls:
+      enabled: ${REDIS_TLS_ENABLED:-false}
+      cert_file: "${REDIS_TLS_CERT_FILE}"
+      key_file: "${REDIS_TLS_KEY_FILE}"
+      ca_file: "${REDIS_TLS_CA_FILE}"
+      insecure_skip_verify: false
+      
+    # Redis Cluster configuration
+    cluster:
+      enabled: ${REDIS_CLUSTER_ENABLED:-true}
+      hosts:
+        - "${REDIS_CLUSTER_HOST_1:-redis-1.internal:6379}"
+        - "${REDIS_CLUSTER_HOST_2:-redis-2.internal:6379}"
+        - "${REDIS_CLUSTER_HOST_3:-redis-3.internal:6379}"
+        - "${REDIS_CLUSTER_HOST_4:-redis-4.internal:6379}"
+        - "${REDIS_CLUSTER_HOST_5:-redis-5.internal:6379}"
+        - "${REDIS_CLUSTER_HOST_6:-redis-6.internal:6379}"
+
+# Scheduler Provider Configuration - Production
+scheduler:
+  # Auto-start scheduler in production
+  auto_start: true
+  
+  # Distributed lock for production clusters
+  distributed_lock:
+    enabled: true
+    provider: "redis"
+    key_prefix: "myapp_scheduler_lock:"
+    ttl: 120  # 2 minutes
+    
+  # Production scheduler options
+  options:
+    # Custom prefix for scheduler keys
+    key_prefix: "myapp_scheduler:"
+    
+    # Lock duration for distributed tasks
+    lock_duration: 300  # 5 minutes
+    
+    # Retry settings for scheduler operations
+    max_retries: 10
+    retry_delay: 1000  # milliseconds
+    
+    # Health check interval
+    health_check_interval: 30  # seconds
+
+# Optional: Additional Redis instances for different purposes
+# redis:
+#   # Separate Redis for caching
+#   cache:
+#     host: "cache-redis.internal"
+#     port: 6379
+#     password: "${CACHE_REDIS_PASSWORD}"
+#     db: 1
+#     pool_size: 50
+#     
+#   # Separate Redis for sessions
+#   session:
+#     host: "session-redis.internal" 
+#     port: 6379
+#     password: "${SESSION_REDIS_PASSWORD}"
+#     db: 2
+#     pool_size: 30
+
+# Production Monitoring and Observability
+# Note: These would be configured in your monitoring stack
+# monitoring:
+#   metrics:
+#     enabled: true
+#     prometheus:
+#       endpoint: "/metrics"
+#       namespace: "myapp_queue"
+#   
+#   logging:
+#     structured: true
+#     level: "info"
+#     format: "json"
+#   
+#   tracing:
+#     enabled: true
+#     jaeger:
+#       endpoint: "http://jaeger-collector:14268/api/traces"

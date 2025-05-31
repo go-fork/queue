@@ -1,0 +1,128 @@
+# Queue Provider Configuration Sample
+# This file provides a template for configuring the queue provider
+# Version: v0.0.5 - Redis Provider Integration
+# 
+# Version: v0.0.4
+# Note: Redis configuration has been moved to Redis Provider for better centralization
+
+# Queue Configuration
+queue:
+  # Adapter Configuration
+  adapter:
+    # Default adapter to use: "memory" or "redis"
+    default: "memory"
+
+    # Memory Adapter Configuration
+    memory:
+      # Prefix to use for queue names in memory
+      prefix: "queue:"
+
+    # Redis Adapter Configuration
+    redis:
+      # Prefix to use for queue keys in Redis
+      prefix: "queue:"
+      # Redis provider key to use (references redis section below)
+      provider_key: "default"
+
+  # Server Configuration
+  server:
+    # Number of workers to process tasks concurrently
+    concurrency: 10
+    
+    # Polling interval in milliseconds
+    pollingInterval: 1000
+    
+    # Default queue name if none specified
+    defaultQueue: "default"
+    
+    # Whether to enforce strict queue priority
+    strictPriority: true
+    
+    # Order of queues to process (priority from high to low)
+    queues:
+      - "critical"
+      - "high"
+      - "default"
+      - "low"
+    
+    # Timeout for graceful shutdown (in seconds)
+    shutdownTimeout: 30
+    
+    # Log level: 0=debug, 1=info, 2=warning, 3=error, 4=fatal
+    logLevel: 1
+    
+    # Maximum retry attempts for failed tasks
+    retryLimit: 3
+
+  # Client Configuration
+  client:
+    # Default options for tasks
+    defaultOptions:
+      # Default queue for tasks
+      queue: "default"
+      
+      # Default maximum retry attempts
+      maxRetry: 3
+      
+      # Default timeout for task execution (in minutes)
+      timeout: 30
+
+# Redis Provider Configuration
+# This section is managed by Redis Provider and referenced by Queue Provider
+redis:
+  # Default Redis instance (referenced by queue.adapter.redis.provider_key)
+  default:
+    # Connection settings
+    host: "localhost"
+    port: 6379
+    password: ""
+    db: 0
+    
+    # Connection pool settings
+    pool_size: 10
+    min_idle_conns: 5
+    max_conn_age: 300  # seconds
+    
+    # Timeout settings
+    dial_timeout: 5    # seconds
+    read_timeout: 3    # seconds
+    write_timeout: 3   # seconds
+    
+    # Retry settings
+    max_retries: 3
+    min_retry_backoff: 8   # milliseconds
+    max_retry_backoff: 512 # milliseconds
+    
+    # Optional TLS configuration
+    tls:
+      enabled: false
+      cert_file: ""
+      key_file: ""
+      ca_file: ""
+      
+    # Optional Redis Cluster configuration
+    cluster:
+      enabled: false
+      hosts:
+        - "localhost:7000"
+        - "localhost:7001"
+        - "localhost:7002"
+      
+  # Additional Redis instances can be configured here
+  # Example for a separate Redis instance for caching
+  cache:
+    host: "cache-redis.internal"
+    port: 6379
+    db: 1
+    
+# Scheduler Provider Configuration (optional, for delayed tasks)
+scheduler:
+  # Whether to automatically start the scheduler
+  auto_start: true
+  
+  # Distributed lock configuration
+  distributed_lock:
+    enabled: false  # Set to true in production clusters
+    provider: "redis"
+    key_prefix: "scheduler_lock:"
+    ttl: 60  # seconds
