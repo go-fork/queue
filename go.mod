@@ -3,13 +3,13 @@ module go.fork.vn/queue
 go 1.23.9
 
 require (
-	go.fork.vn/di v0.1.0
-	go.fork.vn/config v0.1.0
-	go.fork.vn/redis v0.1.0
-	go.fork.vn/scheduler v0.1.0
 	github.com/go-redis/redismock/v9 v9.2.0
 	github.com/redis/go-redis/v9 v9.9.0
 	github.com/stretchr/testify v1.10.0
+	go.fork.vn/config v0.1.0
+	go.fork.vn/di v0.1.0
+	go.fork.vn/redis v0.1.0
+	go.fork.vn/scheduler v0.1.0
 )
 
 require (
@@ -37,5 +37,3 @@ require (
 	golang.org/x/text v0.25.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
-
-replace go.fork.vn/scheduler => ../scheduler
