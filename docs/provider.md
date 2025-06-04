@@ -53,7 +53,7 @@ func main() {
     }
     
     // Sử dụng services
-    manager, _ := container.Make("queue.manager")
+    manager, _ := container.Make("queue")
     client := manager.(queue.Manager).Client()
     server := manager.(queue.Manager).Server()
 }
@@ -106,11 +106,11 @@ config, _ := container.Make("queue.config")
 queueConfig := config.(queue.Config)
 ```
 
-### 2. queue.manager
+### 2. queue
 
 ```go
 // Manager chính quản lý tất cả các thành phần
-container.Singleton("queue.manager", func() (queue.Manager, error) {
+container.Singleton("queue", func() (queue.Manager, error) {
     config, _ := container.Make("queue.config")
     return queue.NewManagerWithContainer(config.(queue.Config), container), nil
 })
@@ -118,7 +118,7 @@ container.Singleton("queue.manager", func() (queue.Manager, error) {
 
 **Sử dụng:**
 ```go
-manager, _ := container.Make("queue.manager")
+manager, _ := container.Make("queue")
 queueManager := manager.(queue.Manager)
 ```
 
@@ -127,7 +127,7 @@ queueManager := manager.(queue.Manager)
 ```go
 // Client để gửi tasks vào queue
 container.Singleton("queue.client", func() (queue.Client, error) {
-    manager, _ := container.Make("queue.manager")
+    manager, _ := container.Make("queue")
     return manager.(queue.Manager).Client(), nil
 })
 ```
@@ -146,7 +146,7 @@ _, err := queueClient.Enqueue("send_email", emailData)
 ```go
 // Server để xử lý tasks từ queue
 container.Singleton("queue.server", func() (queue.Server, error) {
-    manager, _ := container.Make("queue.manager")
+    manager, _ := container.Make("queue")
     return manager.(queue.Manager).Server(), nil
 })
 ```
@@ -296,7 +296,7 @@ func (p *serviceProvider) retryFailedJobs(manager Manager, container di.Containe
 func (p *serviceProvider) setupQueueScheduledTasks(schedulerManager scheduler.Manager, container di.Container) {
     // Monitor queue lengths mỗi 5 phút
     schedulerManager.Every(5).Minutes().Do(func() {
-        manager, _ := container.Make("queue.manager")
+        manager, _ := container.Make("queue")
         queueManager := manager.(queue.Manager)
         
         // Check queue lengths
@@ -341,7 +341,7 @@ func (p *CustomQueueProvider) Boot(app di.Application) error {
     
     // Đăng ký custom services
     container.Singleton("queue.custom.processor", func() (*CustomProcessor, error) {
-        manager, _ := container.Make("queue.manager")
+        manager, _ := container.Make("queue")
         return NewCustomProcessor(manager.(queue.Manager), p.customConfig), nil
     })
     
@@ -585,7 +585,7 @@ func (p *serviceProvider) Boot(app di.Application) error {
     container := app.Container()
     
     // Graceful degradation
-    container.Singleton("queue.manager", func() (queue.Manager, error) {
+    container.Singleton("queue", func() (queue.Manager, error) {
         config, err := p.loadConfig(container)
         if err != nil {
             log.Printf("Failed to load queue config, using defaults: %v", err)

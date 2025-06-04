@@ -174,8 +174,8 @@ scheduler:
 container := app.Container()
 manager := container.MustMake("queue").(queue.Manager)
 
-// Hoặc lấy trực tiếp client từ container
-client := container.MustMake("queue.client").(queue.Client)
+// Lấy client từ manager
+client := manager.Client()
 
 // Thêm tác vụ ngay lập tức với options
 payload := map[string]interface{}{
@@ -217,8 +217,9 @@ if err != nil {
 ### 3. Xử lý tác vụ từ hàng đợi (Consumer)
 
 ```go
-// Lấy queue server từ container
-server := container.MustMake("queue.server").(queue.Server)
+// Lấy queue manager từ container và tạo server
+manager := container.MustMake("queue").(queue.Manager)
+server := manager.Server()
 
 // Đăng ký handler cho email tasks
 server.RegisterHandler("email:welcome", func(ctx context.Context, task *queue.Task) error {

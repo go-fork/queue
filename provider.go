@@ -79,8 +79,7 @@ func (p *serviceProvider) Register(app di.Application) {
 		}
 		// Tạo một queue manager mới với container để truy cập Redis provider
 		manager := NewManagerWithContainer(queueConfig, c)
-		c.Instance("queue", manager)         // Dịch vụ queue manager chung
-		c.Instance("queue.manager", manager) // Direct instance instead of alias
+		c.Instance("queue", manager) // Dịch vụ queue manager chung
 	} else {
 		panic("Config manager is not available in the container")
 	}

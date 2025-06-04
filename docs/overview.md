@@ -568,7 +568,7 @@ sequenceDiagram
     SP->>+DI: container.Singleton("queue.config")
     DI-->>-SP: Config registered
     
-    SP->>+DI: container.Singleton("queue.manager")
+    SP->>+DI: container.Singleton("queue")
     DI-->>-SP: Manager registered
     
     SP->>+DI: container.Singleton("queue.client")
@@ -1121,7 +1121,7 @@ func (p *serviceProvider) Boot(app di.Application) error {
     })
     
     // Đăng ký manager với error handling
-    container.Singleton("queue.manager", func() (Manager, error) {
+    container.Singleton("queue", func() (Manager, error) {
         config, err := container.Make("queue.config")
         if err != nil {
             return nil, fmt.Errorf("failed to resolve config: %w", err)

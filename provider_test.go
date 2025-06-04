@@ -155,10 +155,10 @@ func TestServiceProviderRegister(t *testing.T) {
 		assert.Implements(t, (*Manager)(nil), managerService, "Expected queue to implement Manager interface")
 
 		// Test manager alias resolution (if it works)
-		managerAliasService, err := container.Make("queue.manager")
+		managerAliasService, err := container.Make("queue")
 		if err == nil {
-			assert.NotNil(t, managerAliasService, "Expected queue.manager to be non-nil")
-			assert.Equal(t, managerService, managerAliasService, "Expected queue.manager to be alias of queue")
+			assert.NotNil(t, managerAliasService, "Expected queue to be non-nil")
+			assert.Equal(t, managerService, managerAliasService, "Expected queue to be alias of queue")
 		} else {
 			// Alias might not be supported by this DI container implementation
 			t.Logf("Alias resolution not supported: %v", err)
