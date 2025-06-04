@@ -1,139 +1,123 @@
-# Hướng dẫn Migration - v0.1.1
+# Migration Guide - v0.1.2
 
-## Tổng quan
-Hướng dẫn này giúp bạn migrate từ v0.1.0 lên v0.1.1 của gói go-fork/queue. Phiên bản này giới thiệu mẫu API đơn giản hóa để loại bỏ mẫu `*.manager` và ưu tiên truy cập dịch vụ dựa trên package trực tiếp.
+## Overview
+This guide helps you migrate from the previous version to v0.1.2.
 
-## Điều kiện tiên quyết
-- Go 1.23 trở lên
-- Đã cài đặt go-fork/queue v0.1.0
+## Prerequisites
+- Go 1.23 or later
+- Previous version installed
 
-## Checklist Migration nhanh
-- [ ] Cập nhật các mẫu truy cập dịch vụ để sử dụng giao diện manager
-- [ ] Loại bỏ đăng ký container trực tiếp `queue.client` và `queue.server`
-- [ ] Cập nhật code dependency injection để sử dụng mẫu mới
-- [ ] Chạy test để đảm bảo tương thích
-- [ ] Cập nhật tham chiếu tài liệu
+## Quick Migration Checklist
+- [ ] Update import statements (if changed)
+- [ ] Update function calls (if signatures changed)
+- [ ] Update configuration (if format changed)
+- [ ] Run tests to ensure compatibility
+- [ ] Update documentation references
 
-## Thay đổi phá vỡ tương thích
+## Breaking Changes
 
-### Đơn giản hóa API
-Thay đổi phá vỡ tương thích chính trong v0.1.1 là việc loại bỏ mẫu `*.manager` và đơn giản hóa truy cập dịch vụ.
-
-#### Thay đổi mẫu truy cập dịch vụ
-
-**Mẫu cũ (v0.1.0)**:
+### API Changes
+#### Changed Functions
 ```go
-// Lấy queue client
-client := container.MustMake("queue.client").(queue.Client)
+// Old way (previous version)
+oldFunction(param1, param2)
 
-// Lấy queue server  
-server := container.MustMake("queue.server").(queue.Server)
+// New way (v0.1.2)
+newFunction(param1, param2, newParam)
 ```
 
-**Mẫu mới (v0.1.1)**:
+#### Removed Functions
+- `removedFunction()` - Use `newAlternativeFunction()` instead
+
+#### Changed Types
 ```go
-// Lấy queue manager trước, sau đó truy cập dịch vụ
-manager := container.MustMake("queue").(queue.Manager)
+// Old type definition
+type OldConfig struct {
+    Field1 string
+    Field2 int
+}
 
-// Lấy queue client thông qua manager
-client := manager.Client()
-
-// Lấy queue server thông qua manager
-server := manager.Server()
+// New type definition
+type NewConfig struct {
+    Field1 string
+    Field2 int64 // Changed from int
+    Field3 bool  // New field
+}
 ```
 
-#### Đăng ký đã loại bỏ
-Các đăng ký dịch vụ sau đã được loại bỏ khỏi ServiceProvider:
-- `queue.manager` - Không còn được đăng ký như một dịch vụ riêng biệt
-- Truy cập trực tiếp đến `queue.client` và `queue.server` giờ được thực hiện thông qua giao diện manager
+### Configuration Changes
+If you're using configuration files:
 
-### Thay đổi Service Provider
-Nếu bạn đang đăng ký trực tiếp queue service provider, giao diện vẫn giữ nguyên nhưng các đăng ký nội bộ đã được đơn giản hóa:
+```yaml
+# Old configuration format
+old_setting: value
+deprecated_option: true
 
-```go
-// Điều này tiếp tục hoạt động theo cách tương tự
-provider := queue.NewServiceProvider()
-container.Register(provider)
-
-// Nhưng nội bộ, chỉ "queue" được đăng ký, không phải "queue.manager"
+# New configuration format
+new_setting: value
+# deprecated_option removed
+new_option: false
 ```
 
-## Migration từng bước
+## Step-by-Step Migration
 
-### Bước 1: Cập nhật Dependencies
+### Step 1: Update Dependencies
 ```bash
-go get go.fork.vn/queue@v0.1.1
+go get go.fork.vn/queue@v0.1.2
 go mod tidy
 ```
 
-### Bước 2: Cập nhật code truy cập dịch vụ
-Thay thế tất cả các instance truy cập dịch vụ trực tiếp bằng truy cập dựa trên manager:
-
+### Step 2: Update Import Statements
 ```go
-// Trước: Truy cập client trực tiếp
-client := container.MustMake("queue.client").(queue.Client)
-client.Publish("my-job", map[string]interface{}{"data": "value"})
-
-// Sau: Truy cập client dựa trên manager
-manager := container.MustMake("queue").(queue.Manager)
-client := manager.Client()
-client.Publish("my-job", map[string]interface{}{"data": "value"})
+// If import paths changed
+import (
+    "go.fork.vn/queue" // Updated import
+)
 ```
 
-```go
-// Trước: Truy cập server trực tiếp
-server := container.MustMake("queue.server").(queue.Server)
-server.Start()
+### Step 3: Update Code
+Replace deprecated function calls:
 
-// Sau: Truy cập server dựa trên manager
-manager := container.MustMake("queue").(queue.Manager)
-server := manager.Server()
-server.Start()
+```go
+// Before
+result := queue.OldFunction(param)
+
+// After
+result := queue.NewFunction(param, defaultValue)
 ```
 
-### Bước 3: Loại bỏ đăng ký Container cũ
-Nếu bạn có code tùy chỉnh nào đó cố gắng truy cập `queue.manager`, `queue.client`, hoặc `queue.server` trực tiếp, hãy cập nhật nó để sử dụng mẫu mới.
+### Step 4: Update Configuration
+Update your configuration files according to the new schema.
 
-### Bước 4: Chạy Tests
+### Step 5: Run Tests
 ```bash
 go test ./...
 ```
 
-## Các vấn đề thường gặp và Giải pháp
+## Common Issues and Solutions
 
-### Vấn đề 1: Không tìm thấy dịch vụ
-**Vấn đề**: `service 'queue.client' not found in container`  
-**Giải pháp**: Sử dụng truy cập dựa trên manager: `container.MustMake("queue").(queue.Manager).Client()`
+### Issue 1: Function Not Found
+**Problem**: `undefined: queue.OldFunction`  
+**Solution**: Replace with `queue.NewFunction`
 
-### Vấn đề 2: Không tìm thấy dịch vụ - queue.server
-**Vấn đề**: `service 'queue.server' not found in container`  
-**Giải pháp**: Sử dụng truy cập dựa trên manager: `container.MustMake("queue").(queue.Manager).Server()`
+### Issue 2: Type Mismatch
+**Problem**: `cannot use int as int64`  
+**Solution**: Cast the value or update variable type
 
-### Vấn đề 3: Không tìm thấy dịch vụ - queue.manager
-**Vấn đề**: `service 'queue.manager' not found in container`  
-**Giải pháp**: Sử dụng truy cập queue trực tiếp: `container.MustMake("queue").(queue.Manager)`
+## Getting Help
+- Check the [documentation](https://pkg.go.dev/go.fork.vn/queue@v0.1.2)
+- Search [existing issues](https://github.com/go-fork/queue/issues)
+- Create a [new issue](https://github.com/go-fork/queue/issues/new) if needed
 
-## Lợi ích của mẫu mới
-
-1. **API đơn giản**: Điểm truy cập duy nhất thông qua giao diện manager
-2. **Đóng gói tốt hơn**: Các dịch vụ được truy cập thông qua manager của chúng thay vì trực tiếp từ container
-3. **Container sạch hơn**: Ít dịch vụ được đăng ký trong dependency injection container
-4. **Mẫu nhất quán**: Phù hợp với best practices của Go cho quản lý dịch vụ
-
-## Nhận trợ giúp
-- Kiểm tra [tài liệu](https://pkg.go.dev/go.fork.vn/queue@v0.1.1)
-- Tìm kiếm [các issues hiện có](https://github.com/go-fork/queue/issues)
-- Tạo [issue mới](https://github.com/go-fork/queue/issues/new) nếu cần
-
-## Hướng dẫn Rollback
-Nếu bạn cần rollback:
+## Rollback Instructions
+If you need to rollback:
 
 ```bash
 go get go.fork.vn/queue@previous-version
 go mod tidy
 ```
 
-Thay thế `previous-version` bằng tag phiên bản trước đó của bạn.
+Replace `previous-version` with your previous version tag.
 
 ---
-**Cần trợ giúp?** Đừng ngần ngại mở issue hoặc discussion trên GitHub.
+**Need Help?** Feel free to open an issue or discussion on GitHub.

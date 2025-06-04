@@ -2,6 +2,8 @@
 
 ## [Chưa phát hành]
 
+## [v0.1.1] - 2025-06-05
+
 ### Đã thêm
 - **Truy cập API đơn giản**: Hợp lý hóa truy cập dịch vụ thông qua giao diện manager
   - Điểm truy cập duy nhất qua `container.MustMake("queue")` trả về giao diện Manager
@@ -127,5 +129,6 @@
 - `go.fork.vn/redis`: Kết nối Redis và tích hợp provider
 - `go.fork.vn/scheduler`: Tích hợp scheduler cho xử lý queue
 
-[Chưa phát hành]: github.com/go-fork/queue/compare/v0.1.0...HEAD
+[Chưa phát hành]: github.com/go-fork/queue/compare/v0.1.1...HEAD
+[v0.1.1]: github.com/go-fork/queue/compare/v0.1.0...v0.1.1
 [v0.1.0]: github.com/go-fork/queue/releases/tag/v0.1.0
