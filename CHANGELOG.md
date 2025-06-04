@@ -3,6 +3,11 @@
 ## [Unreleased]
 
 ### Added
+- **Simplified API Access**: Streamlined service access through manager interface
+  - Single entry point via `container.MustMake("queue")` returns Manager interface
+  - Manager provides `.Client()` and `.Server()` methods for service access
+  - Eliminates need for multiple service registrations (`queue.client`, `queue.server`, etc.)
+  - Improved developer experience with more intuitive API design
 - **GitHub Workflows**: Complete CI/CD pipeline with automated testing, release management, and dependency updates
   - CI workflow for automated testing and build verification
   - Release workflow for automated version management and GitHub releases
@@ -20,6 +25,12 @@
   - Documentation for automation scripts usage
 
 ### Changed
+- **API Simplification**: Removed `*.manager` pattern from queue package for cleaner service access
+  - Removed `queue.manager` instance registration from ServiceProvider
+  - Updated service access pattern to use `manager.Client()` and `manager.Server()` methods
+  - Replaced `container.MustMake("queue.client")` with `manager := container.MustMake("queue"); client := manager.Client()`
+  - Replaced `container.MustMake("queue.server")` with `manager := container.MustMake("queue"); server := manager.Server()`
+  - Updated all documentation and examples to reflect new access pattern
 - **Dependencies Upgrade**: Upgraded all direct dependencies to latest versions with breaking changes compatibility
   - `go.fork.vn/config`: v0.1.0 → v0.1.3 (Added ServiceProvider with Boot, Requires, Providers methods)
   - `go.fork.vn/di`: v0.1.0 → v0.1.3 (Enhanced ServiceProvider interface with new methods)
@@ -27,6 +38,10 @@
   - `go.fork.vn/scheduler`: v0.1.0 → v0.1.1 (Configuration-driven approach with auto-start support)
 
 ### Fixed
+- **API Consistency**: Improved service access consistency across the queue package
+  - Eliminated multiple service registration patterns in favor of single manager-based access
+  - Fixed documentation inconsistencies between different service access methods
+  - Standardized all examples to use the new unified access pattern
 - **Breaking Changes Compatibility**: Updated code to work with new ServiceProvider interfaces
   - Fixed ServiceProvider implementations to include new required methods (Boot, Requires, Providers)
   - Updated DI container usage to match new interface specifications
