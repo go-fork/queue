@@ -6,10 +6,10 @@ require (
 	github.com/go-redis/redismock/v9 v9.2.0
 	github.com/redis/go-redis/v9 v9.9.0
 	github.com/stretchr/testify v1.10.0
-	go.fork.vn/config v0.1.0
-	go.fork.vn/di v0.1.0
-	go.fork.vn/redis v0.1.0
-	go.fork.vn/scheduler v0.1.0
+	go.fork.vn/config v0.1.3
+	go.fork.vn/di v0.1.3
+	go.fork.vn/redis v0.1.2
+	go.fork.vn/scheduler v0.1.1
 )
 
 require (
@@ -26,7 +26,7 @@ require (
 	github.com/sagikazarmark/locafero v0.9.0 // indirect
 	github.com/sourcegraph/conc v0.3.0 // indirect
 	github.com/spf13/afero v1.14.0 // indirect
-	github.com/spf13/cast v1.8.0 // indirect
+	github.com/spf13/cast v1.9.2 // indirect
 	github.com/spf13/pflag v1.0.6 // indirect
 	github.com/spf13/viper v1.20.1 // indirect
 	github.com/stretchr/objx v0.5.2 // indirect

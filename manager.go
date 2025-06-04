@@ -40,7 +40,7 @@ type Manager interface {
 // manager quản lý các thành phần trong queue.
 type manager struct {
 	config      Config
-	container   *di.Container
+	container   di.Container
 	client      Client
 	server      Server
 	scheduler   scheduler.Manager
@@ -57,7 +57,7 @@ func NewManager(config Config) Manager {
 }
 
 // NewManagerWithContainer tạo một manager mới với container DI để truy cập Redis provider.
-func NewManagerWithContainer(config Config, container *di.Container) Manager {
+func NewManagerWithContainer(config Config, container di.Container) Manager {
 	return &manager{
 		config:    config,
 		container: container,
@@ -79,7 +79,7 @@ func (m *manager) RedisClient() redisClient.UniversalClient {
 				if redisManager, ok := redisService.(redis.Manager); ok {
 					// Thử lấy universal client trước
 					if universalClient, err := redisManager.UniversalClient(); err == nil {
-						m.redisClient = universalClient
+						m.redisClient = *universalClient
 					} else if client, err := redisManager.Client(); err == nil {
 						// Fallback sang standard client
 						m.redisClient = client

@@ -16,13 +16,61 @@ import (
 	schedulerMocks "go.fork.vn/scheduler/mocks"
 )
 
-// mockApp implements the container interface for testing
+// mockApp implements the di.Application interface for testing
 type mockApp struct {
-	container *di.Container
+	container di.Container
 }
 
-func (a *mockApp) Container() *di.Container {
+func (a *mockApp) Container() di.Container {
 	return a.container
+}
+
+func (a *mockApp) RegisterServiceProviders() error {
+	return nil
+}
+
+func (a *mockApp) RegisterWithDependencies() error {
+	return nil
+}
+
+func (a *mockApp) BootServiceProviders() error {
+	return nil
+}
+
+func (a *mockApp) Register(provider di.ServiceProvider) {
+	// Do nothing for test
+}
+
+func (a *mockApp) Boot() error {
+	return nil
+}
+
+func (a *mockApp) Bind(abstract string, concrete di.BindingFunc) {
+	a.container.Bind(abstract, concrete)
+}
+
+func (a *mockApp) Singleton(abstract string, concrete di.BindingFunc) {
+	a.container.Singleton(abstract, concrete)
+}
+
+func (a *mockApp) Instance(abstract string, instance interface{}) {
+	a.container.Instance(abstract, instance)
+}
+
+func (a *mockApp) Alias(abstract, alias string) {
+	a.container.Alias(abstract, alias)
+}
+
+func (a *mockApp) Make(abstract string) (interface{}, error) {
+	return a.container.Make(abstract)
+}
+
+func (a *mockApp) MustMake(abstract string) interface{} {
+	return a.container.MustMake(abstract)
+}
+
+func (a *mockApp) Call(callback interface{}, additionalParams ...interface{}) ([]interface{}, error) {
+	return a.container.Call(callback, additionalParams...)
 }
 
 // setupTestQueueConfig creates a Queue config for testing

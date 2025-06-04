@@ -432,7 +432,7 @@ Từ monorepo sang standalone module:
 
 ```bash
 # Update import paths
-find . -name "*.go" -type f -exec sed -i '' 's|github.com/go-fork/providers/queue|go.fork.vn/queue|g' {} \;
+find . -name "*.go" -type f -exec sed -i '' 's|github.com/Fork/providers/queue|go.fork.vn/queue|g' {} \;
 
 # Update go.mod
 go mod edit -replace go.fork.vn/queue=./queue

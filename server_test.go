@@ -11,7 +11,7 @@ import (
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	"go.fork.vn/queue/adapter"
-	"go.fork.vn/scheduler/mocks"
+	schedulerMocks "go.fork.vn/scheduler/mocks"
 )
 
 // TestNewServer tests the creation of a server with Redis adapter
@@ -255,7 +255,7 @@ func TestSchedulerMock(t *testing.T) {
 	}
 
 	// Create a mock scheduler
-	schedulerMock := mocks.NewMockManager(t)
+	schedulerMock := schedulerMocks.NewMockManager(t)
 
 	// Set up the server with the mock scheduler
 	server := NewServerWithAdapter(memoryAdapter, opts)
@@ -300,7 +300,7 @@ func TestServerSchedulerIntegration(t *testing.T) {
 	server := NewServerWithAdapter(memoryAdapter, opts)
 
 	// Tạo mock scheduler
-	mockScheduler := mocks.NewMockManager(t)
+	mockScheduler := schedulerMocks.NewMockManager(t)
 
 	// Set scheduler
 	server.SetScheduler(mockScheduler)
@@ -323,7 +323,7 @@ func TestServerSchedulerDelayedTasks(t *testing.T) {
 	server := NewServerWithAdapter(memoryAdapter, opts)
 
 	// Tạo mock scheduler với expectations
-	mockScheduler := mocks.NewMockManager(t)
+	mockScheduler := schedulerMocks.NewMockManager(t)
 
 	// Expect scheduler được start khi server start
 	mockScheduler.EXPECT().IsRunning().Return(false)
@@ -386,7 +386,7 @@ func TestServerSchedulerLifecycle(t *testing.T) {
 	server := NewServerWithAdapter(memoryAdapter, opts)
 
 	// Tạo mock scheduler
-	mockScheduler := mocks.NewMockManager(t)
+	mockScheduler := schedulerMocks.NewMockManager(t)
 
 	// Expect scheduler lifecycle calls
 	mockScheduler.EXPECT().IsRunning().Return(false).Once()
@@ -502,7 +502,7 @@ func TestServerGetSetScheduler(t *testing.T) {
 	assert.Nil(t, scheduler, "Scheduler should be nil initially")
 
 	// Set a mock scheduler
-	mockScheduler := mocks.NewMockManager(t)
+	mockScheduler := schedulerMocks.NewMockManager(t)
 	server.SetScheduler(mockScheduler)
 
 	// Get scheduler should return the mock

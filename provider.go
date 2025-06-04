@@ -14,11 +14,11 @@ import (
 type ServiceProvider interface {
 	di.ServiceProvider
 
-	setupQueueScheduledTasks(schedulerManager scheduler.Manager, container *di.Container)
+	setupQueueScheduledTasks(schedulerManager scheduler.Manager, container di.Container)
 
-	cleanupFailedJobs(manager Manager, container *di.Container)
+	cleanupFailedJobs(manager Manager, container di.Container)
 
-	retryFailedJobs(manager Manager, container *di.Container)
+	retryFailedJobs(manager Manager, container di.Container)
 }
 
 // serviceProvider triển khai interface di.serviceProvider cho các dịch vụ queue.
@@ -55,41 +55,34 @@ func NewServiceProvider() di.ServiceProvider {
 //   - Đăng ký tất cả vào container DI
 //
 // Tham số:
-//   - app: interface{} - instance của ứng dụng cung cấp Container()
-//
-// Ứng dụng phải triển khai:
-//   - Container() *di.Container
-func (p *serviceProvider) Register(app interface{}) {
-	// Trích xuất container từ ứng dụng
-	if appWithContainer, ok := app.(interface {
-		Container() *di.Container
-	}); ok {
-		c := appWithContainer.Container()
-		if c == nil {
-			return // Không xử lý nếu container nil
-		}
+//   - app: di.Application - instance của ứng dụng cung cấp Container()
+func (p *serviceProvider) Register(app di.Application) {
+	// Lấy container từ ứng dụng
+	c := app.Container()
+	if c == nil {
+		return // Không xử lý nếu container nil
+	}
 
-		// Đăng ký scheduler service provider trước nếu chưa có
-		if _, err := c.Make("scheduler"); err != nil {
-			schedulerProvider := scheduler.NewServiceProvider()
-			schedulerProvider.Register(app)
-		}
+	// Đăng ký scheduler service provider trước nếu chưa có
+	if !c.Bound("scheduler") {
+		schedulerProvider := scheduler.NewServiceProvider()
+		schedulerProvider.Register(app)
+	}
 
-		// Kiểm tra xem container đã có config manager chưa
-		configManager := c.MustMake("config").(config.Manager)
-		if configManager != nil {
-			// Cố gắng load cấu hình từ config manager
-			queueConfig := DefaultConfig()
-			if err := configManager.UnmarshalKey("queue", &queueConfig); err != nil {
-				panic(fmt.Sprintf("Failed to load queue config: %v", err))
-			}
-			// Tạo một queue manager mới với container để truy cập Redis provider
-			manager := NewManagerWithContainer(queueConfig, c)
-			c.Instance("queue", manager)         // Dịch vụ queue manager chung
-			c.Instance("queue.manager", manager) // Direct instance instead of alias
-		} else {
-			panic("Config manager is not available in the container")
+	// Kiểm tra xem container đã có config manager chưa
+	configManager := c.MustMake("config").(config.Manager)
+	if configManager != nil {
+		// Cố gắng load cấu hình từ config manager
+		queueConfig := DefaultConfig()
+		if err := configManager.UnmarshalKey("queue", &queueConfig); err != nil {
+			panic(fmt.Sprintf("Failed to load queue config: %v", err))
 		}
+		// Tạo một queue manager mới với container để truy cập Redis provider
+		manager := NewManagerWithContainer(queueConfig, c)
+		c.Instance("queue", manager)         // Dịch vụ queue manager chung
+		c.Instance("queue.manager", manager) // Direct instance instead of alias
+	} else {
+		panic("Config manager is not available in the container")
 	}
 }
 
@@ -100,44 +93,40 @@ func (p *serviceProvider) Register(app interface{}) {
 //   - Thiết lập các task định kỳ cho queue maintenance
 //
 // Tham số:
-//   - app: interface{} - instance của ứng dụng
-func (p *serviceProvider) Boot(app interface{}) {
+//   - app: di.Application - instance của ứng dụng
+func (p *serviceProvider) Boot(app di.Application) {
 	if app == nil {
 		return
 	}
 
-	// Trích xuất container từ ứng dụng
-	if appWithContainer, ok := app.(interface {
-		Container() *di.Container
-	}); ok {
-		c := appWithContainer.Container()
-		if c == nil {
-			return // Không xử lý nếu container nil
-		}
+	// Lấy container từ ứng dụng
+	c := app.Container()
+	if c == nil {
+		return // Không xử lý nếu container nil
+	}
 
-		// Lấy scheduler manager
-		schedulerManager := c.MustMake("scheduler").(scheduler.Manager)
+	// Lấy scheduler manager
+	schedulerManager := c.MustMake("scheduler").(scheduler.Manager)
 
-		// Lấy queue manager để có thể set scheduler cho server
-		queueManager := c.MustMake("queue").(Manager)
+	// Lấy queue manager để có thể set scheduler cho server
+	queueManager := c.MustMake("queue").(Manager)
 
-		// Set up scheduler trên server nếu có
-		if server := queueManager.Server(); server != nil {
-			server.SetScheduler(schedulerManager)
-		}
+	// Set up scheduler trên server nếu có
+	if server := queueManager.Server(); server != nil {
+		server.SetScheduler(schedulerManager)
+	}
 
-		// Thiết lập các task định kỳ cho queue
-		p.setupQueueScheduledTasks(schedulerManager, c)
+	// Thiết lập các task định kỳ cho queue
+	p.setupQueueScheduledTasks(schedulerManager, c)
 
-		// Khởi động scheduler nếu chưa chạy
-		if !schedulerManager.IsRunning() {
-			schedulerManager.StartAsync()
-		}
+	// Khởi động scheduler nếu chưa chạy
+	if !schedulerManager.IsRunning() {
+		schedulerManager.StartAsync()
 	}
 }
 
 // setupQueueScheduledTasks thiết lập các task định kỳ cho queue system
-func (p *serviceProvider) setupQueueScheduledTasks(schedulerManager scheduler.Manager, container *di.Container) {
+func (p *serviceProvider) setupQueueScheduledTasks(schedulerManager scheduler.Manager, container di.Container) {
 	// Task dọn dẹp failed jobs cũ (chạy mỗi giờ)
 	schedulerManager.Every(1).Hours().Do(func() {
 		queueManager := container.MustMake("queue").(Manager)
@@ -152,7 +141,7 @@ func (p *serviceProvider) setupQueueScheduledTasks(schedulerManager scheduler.Ma
 }
 
 // cleanupFailedJobs dọn dẹp các failed jobs cũ
-func (p *serviceProvider) cleanupFailedJobs(manager Manager, container *di.Container) {
+func (p *serviceProvider) cleanupFailedJobs(manager Manager, container di.Container) {
 	ctx := context.Background()
 
 	// Lấy config manager để lấy danh sách queue
@@ -240,7 +229,7 @@ func (p *serviceProvider) cleanupFailedJobs(manager Manager, container *di.Conta
 }
 
 // retryFailedJobs thử lại các failed jobs
-func (p *serviceProvider) retryFailedJobs(manager Manager, container *di.Container) {
+func (p *serviceProvider) retryFailedJobs(manager Manager, container di.Container) {
 	ctx := context.Background()
 
 	// Lấy config manager để lấy danh sách queue

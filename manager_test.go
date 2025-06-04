@@ -5,7 +5,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
-	"go.fork.vn/scheduler/mocks"
+	schedulerMocks "go.fork.vn/scheduler/mocks"
 )
 
 // TestManagerScheduler tests the scheduler integration in manager
@@ -40,7 +40,7 @@ func TestManagerSetScheduler(t *testing.T) {
 	manager := NewManager(config)
 
 	// Tạo mock scheduler
-	mockScheduler := mocks.NewMockManager(t)
+	mockScheduler := schedulerMocks.NewMockManager(t)
 
 	// Set scheduler từ bên ngoài
 	manager.SetScheduler(mockScheduler)
@@ -62,7 +62,7 @@ func TestManagerSchedulerIntegration(t *testing.T) {
 	manager := NewManager(config)
 
 	// Tạo mock scheduler với expectations
-	mockScheduler := mocks.NewMockManager(t)
+	mockScheduler := schedulerMocks.NewMockManager(t)
 
 	// Set up expectations for fluent interface
 	mockScheduler.EXPECT().Every(5).Return(mockScheduler)
