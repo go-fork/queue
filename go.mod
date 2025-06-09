@@ -4,7 +4,7 @@ go 1.23.9
 
 require (
 	github.com/go-redis/redismock/v9 v9.2.0
-	github.com/redis/go-redis/v9 v9.9.0
+	github.com/redis/go-redis/v9 v9.10.0
 	github.com/stretchr/testify v1.10.0
 	go.fork.vn/config v0.1.3
 	go.fork.vn/di v0.1.3
@@ -34,6 +34,6 @@ require (
 	go.uber.org/atomic v1.11.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	golang.org/x/sys v0.33.0 // indirect
-	golang.org/x/text v0.25.0 // indirect
+	golang.org/x/text v0.26.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
